@@ -490,72 +490,96 @@ def predecir_spam(mensaje):
     
     resultado = "SPAM" if prediccion == 1 else "NO SPAM"
     confianza = max(probabilidad)
-Continuaré desde donde quedó la guía, específicamente desde el Paso 9 del clasificador de SPAM:
-    print(f"Mensaje: '{mensaje}'")
-    print(f"Predicción: {resultado}")
-    print(f"Confianza: {confianza*100:.1f}%")
-    return resultado
+    return f"{resultado} (Confianza: {confianza*100:.1f}%)"
 
-# Prueba el modelo con mensajes nuevos
-print("\n=== PRUEBAS CON MENSAJES NUEVOS ===")
+# Prueba la función
 mensajes_prueba = [
-    "Gana dinero fácil trabajando desde casa",
-    "¿Vienes a cenar con nosotros?",
-    "ULTIMO DIA para reclamar tu premio",
-    "Tu pedido ha sido enviado"
+    "Felicidades, has ganado un viaje gratis",
+    "¿Vienes a cenar esta noche?",
+    "URGENTE: Confirma tu cuenta ahora o será eliminada"
 ]
 
+print("\n=== Predicciones en mensajes nuevos ===")
 for msg in mensajes_prueba:
-    predecir_spam(msg)
-    print("-" * 40)
+    print(f"Mensaje: '{msg}'")
+    print(f"Predicción: {predecir_spam(msg)}\n")
 
 # PASO 10: Guardar el modelo para uso futuro
 joblib.dump(modelo, 'modelo_spam.pkl')
 joblib.dump(vectorizer, 'vectorizer_spam.pkl')
-print("\n✅ Modelo guardado como 'modelo_spam.pkl'")
-print("✅ Vectorizer guardado como 'vectorizer_spam.pkl'")
+print("Modelo guardado como 'modelo_spam.pkl'")
+print("Vectorizer guardado como 'vectorizer_spam.pkl'")
 
-# Para cargar el modelo en el futuro:
-# modelo_cargado = joblib.load('modelo_spam.pkl')
-# vectorizer_cargado = joblib.load('vectorizer_spam.pkl')
-________________________________________
-Módulo 4: Redes Neuronales y Deep Learning
-Tema: La Neurona Artificial y las Capas
-Contenido Detallado: Una neurona artificial imita a las neuronas biológicas: recibe entradas (dendritas), las procesa con pesos y bias (núcleo), y produce una salida (axón). Las capas son grupos de neuronas: la capa de entrada recibe datos, las capas ocultas procesan patrones complejos, y la capa de salida da el resultado. Es como un equipo de detectives: cada uno busca pistas diferentes y juntos resuelven el caso.
-Recursos en Video:
-•	La Neurona Artificial Explicada - 3Blue1Brown
-•	Redes Neuronales desde Cero - Dot CSV
-Ejemplo del Mundo Real: El reconocimiento de voz de Siri usa múltiples capas: las primeras detectan frecuencias sonoras, las intermedias identifican fonemas, y las finales construyen palabras y frases completas.
-Actividad Práctica:
+# PASO 11: Cargar y usar el modelo guardado
+print("\n=== Cargando modelo guardado ===")
+modelo_cargado = joblib.load('modelo_spam.pkl')
+vectorizer_cargado = joblib.load('vectorizer_spam.pkl')
+
+# Verificar que funciona
+mensaje_final = "Descuento increíble solo por hoy"
+mensaje_vec = vectorizer_cargado.transform([mensaje_final])
+prediccion_final = modelo_cargado.predict(mensaje_vec)[0]
+print(f"Prueba con modelo cargado: '{mensaje_final}'")
+print(f"Resultado: {'SPAM' if prediccion_final == 1 else 'NO SPAM'}")
+```
+
+---
+
+## Módulo 4: Redes Neuronales y Deep Learning
+
+### Tema: La Neurona Artificial y las Capas
+
+**Contenido Detallado:**
+Una neurona artificial imita a las biológicas: recibe entradas, las pondera (pesos), suma todo, añade un sesgo (bias), aplica una función de activación y produce una salida. Las capas son grupos de neuronas. **Capa de entrada**: recibe los datos. **Capas ocultas**: procesan y extraen características. **Capa de salida**: produce la predicción. Es como un equipo: jugadores (neuronas) organizados en líneas (capas) que pasan el balón (información) hasta marcar (predicción).
+
+**Recursos en Video:**
+- [La Neurona Artificial - 3Blue1Brown](https://www.youtube.com/watch?v=aircAruvnKk)
+- [Redes Neuronales desde Cero - Dot CSV](https://www.youtube.com/watch?v=MRIv2IwFTPg)
+
+**Ejemplo del Mundo Real:**
+El reconocimiento facial de tu teléfono usa millones de neuronas: las primeras capas detectan bordes, las intermedias formas (ojos, nariz), las finales reconocen la identidad completa.
+
+**Actividad Práctica:**
+```python
 import numpy as np
 
 # Simula una neurona simple
 def neurona(entradas, pesos, bias):
-    # Suma ponderada + bias
-    z = np.dot(entradas, pesos) + bias
-    # Función de activación (sigmoid)
-    salida = 1 / (1 + np.exp(-z))
-    return salida
+    """Una neurona que hace suma ponderada + bias + activación"""
+    suma = np.dot(entradas, pesos) + bias
+    # Función de activación ReLU (si es negativo, output es 0)
+    activacion = max(0, suma)
+    return activacion
 
 # Prueba la neurona
-entradas = np.array([0.5, 0.3, 0.2])  # 3 entradas
-pesos = np.array([0.4, 0.6, 0.8])     # 3 pesos
-bias = 0.1
+entradas = [1.0, 2.0, 3.0]  # 3 features de entrada
+pesos = [0.2, 0.8, -0.5]    # Importancia de cada entrada
+bias = 2.0                   # Sesgo
 
-resultado = neurona(entradas, pesos, bias)
+salida = neurona(entradas, pesos, bias)
 print(f"Entrada: {entradas}")
-print(f"Salida de la neurona: {resultado:.3f}")
-Tema: Funciones de Activación y Optimización (Learning Rate, Epochs)
-Contenido Detallado: Las funciones de activación introducen no-linealidad, permitiendo aprender patrones complejos. ReLU (max(0,x)) es simple y efectiva, Sigmoid comprime valores entre 0-1, Tanh entre -1 y 1. El Learning Rate controla qué tan grandes son los pasos de aprendizaje: muy alto y te pasas del objetivo, muy bajo y tardas eternamente. Epochs son las veces que el modelo ve todo el dataset. Es como ajustar un telescopio: la función de activación es el lente, el learning rate es cuánto giras la perilla, y epochs son las veces que intentas.
-Recursos en Video:
-•	Funciones de Activación Visualizadas - StatQuest
-•	Learning Rate y Optimización - DeepLearning.AI
-Ejemplo del Mundo Real: GPT usa funciones de activación GELU para procesar texto. Su entrenamiento requirió miles de epochs con learning rate adaptativo que disminuía gradualmente para afinar el modelo.
-Actividad Práctica:
+print(f"Pesos: {pesos}")
+print(f"Salida de la neurona: {salida}")
+```
+
+### Tema: Funciones de Activación y Optimización (Learning Rate, Epochs)
+
+**Contenido Detallado:**
+Las **funciones de activación** añaden no-linealidad: sin ellas, apilar capas sería inútil. **ReLU** (si x<0 entonces 0, sino x) es la más popular por su simplicidad. **Sigmoid** comprime todo entre 0-1, ideal para probabilidades. **Learning Rate** controla qué tan grandes son los pasos al aprender: muy alto y te pasas del objetivo, muy bajo y tardas eternamente. **Epochs** son pasadas completas por todos los datos: como releer un libro para entenderlo mejor.
+
+**Recursos en Video:**
+- [Funciones de Activación Visualizadas - DeepLearning.AI](https://www.youtube.com/watch?v=Xvg00QnyaIY)
+- [Learning Rate y Optimización - Two Minute Papers](https://www.youtube.com/watch?v=l-CjXFmcVzY)
+
+**Ejemplo del Mundo Real:**
+GPT usa millones de neuronas con activación GELU. Se entrena con learning rate adaptativo que empieza alto (aprende rápido) y baja gradualmente (ajuste fino). Requiere miles de epochs con billones de palabras.
+
+**Actividad Práctica:**
+```python
 import matplotlib.pyplot as plt
 import numpy as np
 
-# Visualiza diferentes funciones de activación
+# Visualiza funciones de activación
 x = np.linspace(-5, 5, 100)
 
 # ReLU
@@ -583,135 +607,188 @@ plt.grid(True)
 
 plt.tight_layout()
 plt.show()
-Tema: Arquitecturas Clave (CNN para imágenes, RNN para texto)
-Contenido Detallado: CNN (Convolutional Neural Networks) son como escáneres que buscan patrones visuales. Las capas convolucionales detectan bordes, formas, objetos progresivamente. Como mirar una pintura: primero ves colores, luego formas, finalmente el tema completo. RNN (Recurrent Neural Networks) tienen memoria para secuencias. Procesan texto palabra por palabra, recordando el contexto. Como leer una novela: cada palabra se entiende considerando las anteriores.
-Recursos en Video:
-•	CNN Explicadas Visualmente - 3Blue1Brown
-•	RNN y LSTM - Dot CSV
-Ejemplo del Mundo Real: Instagram usa CNN para detectar objetos en fotos y sugerir hashtags. Google Translate usa arquitecturas tipo Transformer (evolución de RNN) para traducir manteniendo el contexto de frases completas.
-Actividad Práctica:
-# Conceptualiza una CNN simple
-print("Arquitectura CNN típica para clasificar imágenes 28x28:")
-print("1. Input: Imagen 28x28x1 (784 píxeles)")
-print("2. Conv2D: 32 filtros 3x3 → Detecta bordes")
-print("3. MaxPooling: Reduce tamaño 14x14")
-print("4. Conv2D: 64 filtros 3x3 → Detecta formas")
-print("5. MaxPooling: Reduce a 7x7")
-print("6. Flatten: Convierte a vector de 3136 valores")
-print("7. Dense: 128 neuronas → Combina features")
-print("8. Output: 10 neuronas → 10 clases posibles")
-print("\nCada capa aprende características más complejas!")
-Tema: La Magia del Transfer Learning
-Contenido Detallado: Transfer Learning es usar un modelo preentrenado y adaptarlo a tu problema. Como un chef experto que adapta sus habilidades a cocina nueva. En lugar de entrenar desde cero (costoso y lento), tomas un modelo que ya sabe reconocer features generales y solo ajustas las últimas capas para tu tarea específica. VGG16, ResNet, BERT son modelos famosos preentrenados disponibles gratis.
-Recursos en Video:
-•	Transfer Learning Práctico - TensorFlow
-•	Fine-tuning Explicado - PyImageSearch
-Ejemplo del Mundo Real: Las startups de salud usan modelos preentrenados en ImageNet (millones de imágenes generales) y los adaptan para detectar tumores con solo miles de radiografías propias.
-Actividad Práctica:
-# Concepto de Transfer Learning
-from tensorflow.keras.applications import VGG16
-from tensorflow.keras.layers import Dense, GlobalAveragePooling2D
-from tensorflow.keras.models import Model
+```
 
-# Carga modelo preentrenado (sin la capa superior)
-base_model = VGG16(weights='imagenet', include_top=False, input_shape=(224, 224, 3))
+### Tema: Arquitecturas Clave (CNN para imágenes, RNN para texto)
 
-# Congela las capas preentrenadas
-for layer in base_model.layers:
-    layer.trainable = False
+**Contenido Detallado:**
+**CNN (Convolutional Neural Networks)**: Especializadas en imágenes. Usan filtros que escanean la imagen buscando patrones (bordes, formas, texturas). Como tener lupas especializadas que buscan características específicas. **RNN (Recurrent Neural Networks)**: Procesan secuencias con memoria. Perfectas para texto o series temporales donde el contexto importa. LSTM y GRU son RNN mejoradas que recuerdan mejor. **Transformers**: La revolución actual, procesan todo en paralelo con "atención" a las partes relevantes.
 
-# Añade tus propias capas
-x = base_model.output
-x = GlobalAveragePooling2D()(x)
-x = Dense(128, activation='relu')(x)
-predictions = Dense(2, activation='softmax')(x)  # 2 clases: gato vs perro
+**Recursos en Video:**
+- [CNN Explicadas Visualmente - 3Blue1Brown](https://www.youtube.com/watch?v=KuXjwB4LzSA)
+- [RNN y LSTM - StatQuest](https://www.youtube.com/watch?v=70MgF-IwAr8)
 
-# Modelo final
-model = Model(inputs=base_model.input, outputs=predictions)
-print(f"Modelo creado con {len(model.layers)} capas")
-print(f"Capas congeladas: {len(base_model.layers)}")
-print("¡Listo para entrenar solo las últimas capas con TUS datos!")
-Tema: Proyecto Guiado - Clasificador de Dígitos (MNIST)
-Contenido Detallado: Crearemos un clasificador de dígitos escritos a mano usando el famoso dataset MNIST. Es el "Hola Mundo" del Deep Learning.
-Recursos en Video:
-•	MNIST desde Cero - Sentdex
-•	Red Neuronal para MNIST - NeuralNine
-Ejemplo del Mundo Real: Los bancos usan sistemas similares para leer cheques escritos a mano. El servicio postal automatiza la clasificación leyendo códigos postales manuscritos.
-Actividad Práctica - Código Completo:
-# PROYECTO COMPLETO: CLASIFICADOR DE DÍGITOS MNIST
-# Ejecuta esto en Google Colab para mejores resultados
+**Ejemplo del Mundo Real:**
+Instagram usa CNN para detectar objetos en fotos y filtrar contenido inapropiado. Google Translate usa Transformers (antes RNN) para mantener contexto al traducir párrafos completos, no solo palabras aisladas.
+
+**Actividad Práctica:**
+```python
+# Estructura conceptual de diferentes arquitecturas
+arquitecturas = {
+    "CNN": {
+        "uso": "Imágenes, Video",
+        "capas_tipicas": ["Conv2D", "MaxPooling", "Conv2D", "Flatten", "Dense"],
+        "ejemplo": "Clasificar si una radiografía muestra neumonía"
+    },
+    "RNN": {
+        "uso": "Texto, Series Temporales", 
+        "capas_tipicas": ["Embedding", "LSTM", "LSTM", "Dense"],
+        "ejemplo": "Predecir la siguiente palabra en una oración"
+    },
+    "Transformer": {
+        "uso": "NLP avanzado, Visión",
+        "capas_tipicas": ["Embedding", "Multi-Head Attention", "Feed Forward", "Output"],
+        "ejemplo": "ChatGPT, DALL-E, Google Translate"
+    }
+}
+
+for nombre, info in arquitecturas.items():
+    print(f"\n{nombre}:")
+    print(f"  Uso principal: {info['uso']}")
+    print(f"  Pipeline: {' → '.join(info['capas_tipicas'])}")
+    print(f"  Ejemplo real: {info['ejemplo']}")
+```
+
+### Tema: La Magia del Transfer Learning
+
+**Contenido Detallado:**
+Transfer Learning es usar un modelo pre-entrenado y adaptarlo a tu problema. Como un chef experto que ya sabe cocinar y solo necesita aprender tu receta específica. Tomas modelos entrenados con millones de imágenes (ResNet, VGG) o billones de palabras (BERT, GPT) y los ajustas con tus datos. Ahorras tiempo (semanas vs. horas), recursos (miles de dólares en GPU) y obtienes mejor precisión con menos datos.
+
+**Recursos en Video:**
+- [Transfer Learning Explicado - TensorFlow](https://www.youtube.com/watch?v=BqqfQnyjmgg)
+- [Fine-tuning en la Práctica - Hugging Face](https://www.youtube.com/watch?v=5T-iXNNiwIs)
+
+**Ejemplo del Mundo Real:**
+Los filtros de Snapchat usan transfer learning: toman MobileNet (entrenado en millones de imágenes generales) y lo ajustan para detectar caras y puntos faciales específicos con solo miles de ejemplos.
+
+**Actividad Práctica:**
+```python
+# Concepto de Transfer Learning con Keras
+from tensorflow import keras
+
+# Paso 1: Cargar modelo pre-entrenado (sin la capa final)
+base_model = keras.applications.VGG16(
+    weights='imagenet',  # Pesos pre-entrenados en ImageNet
+    include_top=False,   # Sin la capa de clasificación original
+    input_shape=(224, 224, 3)
+)
+
+# Paso 2: Congelar capas del modelo base (no re-entrenar)
+base_model.trainable = False
+
+# Paso 3: Añadir tus propias capas para tu problema específico
+modelo_personalizado = keras.Sequential([
+    base_model,
+    keras.layers.GlobalAveragePooling2D(),
+    keras.layers.Dense(128, activation='relu'),
+    keras.layers.Dropout(0.2),
+    keras.layers.Dense(2, activation='softmax')  # 2 clases: gato vs perro
+])
+
+print("Modelo creado con Transfer Learning:")
+print(f"- Capas base (congeladas): {len(base_model.layers)}")
+print(f"- Capas personalizadas: 4")
+print(f"- Total de parámetros: {modelo_personalizado.count_params():,}")
+```
+
+### Tema: Proyecto Guiado - Clasificador de Dígitos (MNIST)
+
+**Contenido Detallado:**
+MNIST es el "Hola Mundo" del Deep Learning: 70,000 imágenes de dígitos escritos a mano (0-9). Construiremos una red neuronal desde cero que alcance >95% de precisión. Cada paso estará comentado para entender el proceso completo.
+
+**Recursos en Video:**
+- [MNIST con TensorFlow - Sentdex](https://www.youtube.com/watch?v=wQ8BIBpya2k)
+- [Tu Primera Red Neuronal - CodeBasics](https://www.youtube.com/watch?v=7iI5ixxyaQ8)
+
+**Ejemplo del Mundo Real:**
+Los bancos usan sistemas similares para leer cheques escritos a mano. El servicio postal automatiza la clasificación leyendo códigos postales manuscritos con redes entrenadas en MNIST.
+
+**Actividad Práctica - Código Completo:**
+```python
+# CLASIFICADOR DE DÍGITOS MNIST - PROYECTO COMPLETO
+# Ejecutar en Google Colab para mejores resultados
 
 import tensorflow as tf
 from tensorflow import keras
 import numpy as np
 import matplotlib.pyplot as plt
 
-print("TensorFlow versión:", tf.__version__)
+print(f"TensorFlow versión: {tf.__version__}")
 
-# PASO 1: Cargar el dataset MNIST
-# MNIST contiene 70,000 imágenes de dígitos escritos a mano (0-9)
-(x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
+# PASO 1: Cargar y explorar el dataset MNIST
+(X_train, y_train), (X_test, y_test) = keras.datasets.mnist.load_data()
 
-print(f"Datos de entrenamiento: {x_train.shape[0]} imágenes")
-print(f"Datos de prueba: {x_test.shape[0]} imágenes")
-print(f"Tamaño de cada imagen: {x_train.shape[1]}x{x_train.shape[2]} píxeles")
+print(f"Datos de entrenamiento: {X_train.shape[0]} imágenes")
+print(f"Datos de prueba: {X_test.shape[0]} imágenes")
+print(f"Tamaño de cada imagen: {X_train.shape[1]}x{X_train.shape[2]} píxeles")
 
-# PASO 2: Visualizar algunas imágenes de ejemplo
-plt.figure(figsize=(10, 2))
-for i in range(5):
-    plt.subplot(1, 5, i+1)
-    plt.imshow(x_train[i], cmap='gray')
-    plt.title(f'Etiqueta: {y_train[i]}')
+# Visualizar algunas imágenes
+plt.figure(figsize=(10, 5))
+for i in range(10):
+    plt.subplot(2, 5, i+1)
+    plt.imshow(X_train[i], cmap='gray')
+    plt.title(f"Etiqueta: {y_train[i]}")
     plt.axis('off')
-plt.suptitle('Ejemplos del dataset MNIST')
+plt.suptitle("Ejemplos del dataset MNIST")
+plt.tight_layout()
 plt.show()
 
-# PASO 3: Preprocesar los datos
-# Normalizar píxeles de 0-255 a 0-1
-x_train = x_train.astype('float32') / 255.0
-x_test = x_test.astype('float32') / 255.0
+# PASO 2: Preprocesar los datos
+# Normalizar píxeles de 0-255 a 0-1 (las redes aprenden mejor con valores pequeños)
+X_train = X_train.astype('float32') / 255.0
+X_test = X_test.astype('float32') / 255.0
 
 print(f"Rango de valores antes: 0-255")
-print(f"Rango de valores después: {x_train.min():.1f}-{x_train.max():.1f}")
+print(f"Rango de valores después: {X_train.min()}-{X_train.max()}")
 
-# PASO 4: Construir la arquitectura de la red neuronal
+# Aplanar imágenes de 28x28 a vector de 784
+original_shape = X_train.shape
+X_train_flat = X_train.reshape(X_train.shape[0], -1)
+X_test_flat = X_test.reshape(X_test.shape[0], -1)
+
+print(f"Forma original: {original_shape}")
+print(f"Forma aplanada: {X_train_flat.shape}")
+
+# PASO 3: Construir la arquitectura de la red neuronal
 modelo = keras.Sequential([
-    # Capa 1: Aplanar imagen 28x28 a vector de 784
-    keras.layers.Flatten(input_shape=(28, 28)),
+    # Capa de entrada
+    keras.layers.Input(shape=(784,)),
     
-    # Capa 2: Primera capa oculta con 128 neuronas
-    keras.layers.Dense(128, activation='relu'),
-    keras.layers.Dropout(0.2),  # Previene overfitting
+    # Primera capa oculta: 128 neuronas
+    keras.layers.Dense(128, activation='relu', name='capa_oculta_1'),
+    keras.layers.Dropout(0.2),  # Previene overfitting apagando 20% de neuronas
     
-    # Capa 3: Segunda capa oculta con 64 neuronas  
-    keras.layers.Dense(64, activation='relu'),
+    # Segunda capa oculta: 64 neuronas
+    keras.layers.Dense(64, activation='relu', name='capa_oculta_2'),
     keras.layers.Dropout(0.2),
     
-    # Capa 4: Capa de salida con 10 neuronas (una por dígito)
-    keras.layers.Dense(10, activation='softmax')
+    # Capa de salida: 10 neuronas (una por dígito)
+    keras.layers.Dense(10, activation='softmax', name='capa_salida')
 ])
 
-# Mostrar arquitectura
+# Ver resumen del modelo
+print("\nArquitectura del modelo:")
 modelo.summary()
 
-# PASO 5: Compilar el modelo
+# PASO 4: Compilar el modelo (configurar cómo aprenderá)
 modelo.compile(
-    optimizer='adam',  # Algoritmo de optimización
-    loss='sparse_categorical_crossentropy',  # Función de pérdida para clasificación
+    optimizer='adam',  # Algoritmo de optimización adaptativo
+    loss='sparse_categorical_crossentropy',  # Pérdida para clasificación multiclase
     metrics=['accuracy']  # Métrica a monitorear
 )
 
-# PASO 6: Entrenar el modelo
+# PASO 5: Entrenar el modelo
 print("\n🚀 Iniciando entrenamiento...")
+
 historia = modelo.fit(
-    x_train, y_train,
-    batch_size=32,  # Procesa 32 imágenes a la vez
-    epochs=10,  # Pasa 10 veces por todo el dataset
-    validation_split=0.1,  # Usa 10% para validación
-    verbose=1
+    X_train_flat, y_train,
+    epochs=10,  # Número de veces que verá todos los datos
+    batch_size=32,  # Procesar 32 imágenes a la vez
+    validation_split=0.1,  # Usar 10% de datos para validación
+    verbose=1  # Mostrar progreso
 )
 
-# PASO 7: Visualizar el progreso del entrenamiento
+# PASO 6: Visualizar el progreso del entrenamiento
 plt.figure(figsize=(12, 4))
 
 plt.subplot(1, 2, 1)
@@ -721,6 +798,7 @@ plt.title('Precisión durante el entrenamiento')
 plt.xlabel('Época')
 plt.ylabel('Precisión')
 plt.legend()
+plt.grid(True)
 
 plt.subplot(1, 2, 2)
 plt.plot(historia.history['loss'], label='Entrenamiento')
@@ -729,279 +807,540 @@ plt.title('Pérdida durante el entrenamiento')
 plt.xlabel('Época')
 plt.ylabel('Pérdida')
 plt.legend()
+plt.grid(True)
 
 plt.tight_layout()
 plt.show()
 
-# PASO 8: Evaluar el modelo con datos de prueba
-test_loss, test_accuracy = modelo.evaluate(x_test, y_test, verbose=0)
-print(f"\n📊 Resultados finales:")
-print(f"Precisión en datos de prueba: {test_accuracy*100:.2f}%")
-print(f"Pérdida en datos de prueba: {test_loss:.4f}")
+# PASO 7: Evaluar en datos de prueba
+test_loss, test_accuracy = modelo.evaluate(X_test_flat, y_test, verbose=0)
+print(f"\n📊 Precisión en datos de prueba: {test_accuracy*100:.2f}%")
 
-# PASO 9: Hacer predicciones con imágenes nuevas
-def predecir_digito(modelo, imagen_idx):
-    """Predice un dígito y muestra la imagen"""
-    imagen = x_test[imagen_idx:imagen_idx+1]
-    prediccion = modelo.predict(imagen, verbose=0)
-    digito_predicho = np.argmax(prediccion)
+# PASO 8: Hacer predicciones y visualizar resultados
+# Seleccionar 6 imágenes aleatorias para predecir
+indices_aleatorios = np.random.choice(len(X_test), 6, replace=False)
+
+plt.figure(figsize=(15, 3))
+for i, idx in enumerate(indices_aleatorios):
+    # Hacer predicción
+    imagen = X_test_flat[idx:idx+1]
+    prediccion_probs = modelo.predict(imagen, verbose=0)
+    prediccion = np.argmax(prediccion_probs)
+    confianza = np.max(prediccion_probs) * 100
+    real = y_test[idx]
+    
+    # Visualizar
+    plt.subplot(1, 6, i+1)
+    plt.imshow(X_test[idx], cmap='gray')
+    color = 'green' if prediccion == real else 'red'
+    plt.title(f"Real: {real}\nPredicción: {prediccion}\n({confianza:.1f}%)", 
+              color=color, fontsize=10)
+    plt.axis('off')
+
+plt.suptitle("Predicciones del Modelo (Verde=Correcto, Rojo=Error)")
+plt.tight_layout()
+plt.show()
+
+# PASO 9: Analizar errores - Matriz de confusión
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
+
+y_pred = np.argmax(modelo.predict(X_test_flat), axis=1)
+matriz_confusion = confusion_matrix(y_test, y_pred)
+
+plt.figure(figsize=(10, 8))
+sns.heatmap(matriz_confusion, annot=True, fmt='d', cmap='Blues')
+plt.title('Matriz de Confusión')
+plt.xlabel('Predicción')
+plt.ylabel('Real')
+plt.show()
+
+# PASO 10: Guardar el modelo para uso futuro
+modelo.save('mi_clasificador_digitos.h5')
+print("\n💾 Modelo guardado como 'mi_clasificador_digitos.h5'")
+
+# Función para usar el modelo guardado
+def predecir_digito(imagen_array):
+    """Predice un dígito a partir de una imagen 28x28"""
+    # Cargar modelo
+    modelo_cargado = keras.models.load_model('mi_clasificador_digitos.h5')
+    
+    # Preprocesar
+    imagen = imagen_array.astype('float32') / 255.0
+    imagen = imagen.reshape(1, -1)
+    
+    # Predecir
+    prediccion = modelo_cargado.predict(imagen, verbose=0)
+    digito = np.argmax(prediccion)
     confianza = np.max(prediccion) * 100
     
-    plt.figure(figsize=(6, 3))
-    
-    plt.subplot(1, 2, 1)
-    plt.imshow(x_test[imagen_idx], cmap='gray')
-    plt.title(f'Imagen real: {y_test[imagen_idx]}')
-    plt.axis('off')
-    
-    plt.subplot(1, 2, 2)
-    plt.bar(range(10), prediccion[0])
-    plt.xlabel('Dígito')
-    plt.ylabel('Probabilidad')
-    plt.title(f'Predicción: {digito_predicho} ({confianza:.1f}% confianza)')
-    
-    plt.tight_layout()
-    plt.show()
+    return digito, confianza
 
-# Prueba con 3 imágenes aleatorias
-print("\n🔮 Predicciones en imágenes de prueba:")
-for i in np.random.choice(len(x_test), 3, replace=False):
-    predecir_digito(modelo, i)
+# Probar la función
+test_idx = 0
+digito, confianza = predecir_digito(X_test[test_idx] * 255)  # Multiplicamos por 255 porque la función lo normaliza
+print(f"\n🎯 Prueba de función: Dígito predicho = {digito} (Confianza: {confianza:.1f}%)")
+print(f"   Dígito real = {y_test[test_idx]}")
+```
 
-# PASO 10: Guardar el modelo
-modelo.save('modelo_digitos.h5')
-print("\n✅ Modelo guardado como 'modelo_digitos.h5'")
-print("Para cargarlo en el futuro: modelo = keras.models.load_model('modelo_digitos.h5')")
+---
 
-# BONUS: Función interactiva para dibujar y predecir
-print("\n💡 TIP: Puedes crear tu propia aplicación de reconocimiento de dígitos")
-print("integrando este modelo con una interfaz gráfica (ver Módulo 5)")
-________________________________________
-Módulo 5: Integrando la IA en tu Propio Programa
-Tema: ¿Qué es una API? Cómo servir tu modelo con Flask
-Contenido Detallado: Una API (Application Programming Interface) es como un mesero en un restaurante: tomas la orden (request), la llevas a la cocina (tu modelo), y traes el plato (response). Flask es un framework minimalista de Python perfecto para servir modelos. Tu modelo se convierte en un servicio web que cualquier aplicación puede consumir, desde apps móviles hasta sitios web.
-Recursos en Video:
-•	APIs REST Explicadas - FreeCodeCamp Español
-•	Deploy ML con Flask - Tech With Tim
-Ejemplo del Mundo Real: La API de OpenAI sirve ChatGPT a millones de usuarios. Envías texto, su servidor procesa con el modelo, y recibes la respuesta. Spotify, Uber, todos usan APIs para servir predicciones de IA.
-Actividad Práctica:
-# API básica con Flask para servir el modelo de spam
+## Módulo 5: Integrando la IA en tu Propio Programa
+
+### Tema: ¿Qué es una API? Cómo servir tu modelo con Flask
+
+**Contenido Detallado:**
+Una **API** (Application Programming Interface) es un puente entre tu modelo y el mundo exterior. Flask es un framework minimalista de Python perfecto para crear APIs. Tu modelo se convierte en un servicio web: recibes peticiones HTTP con datos, los procesas con tu modelo, y devuelves predicciones en formato JSON. Es como convertir tu modelo en un restaurante: los clientes (aplicaciones) hacen pedidos (requests), tu cocina (modelo) prepara la respuesta, y el mesero (API) la entrega.
+
+**Recursos en Video:**
+- [APIs REST con Flask - Fazt Code](https://www.youtube.com/watch?v=Esdj9wlBOaI)
+- [Deploy de Modelos ML - Tech With Tim](https://www.youtube.com/watch?v=fhLKCuN7qkQ)
+
+**Ejemplo del Mundo Real:**
+La API de OpenAI sirve GPT a millones de usuarios. Envías texto, su API lo procesa con el modelo, y te devuelve la respuesta. Spotify, Uber, Twitter: todas usan APIs para servir sus modelos de IA.
+
+**Actividad Práctica:**
+```python
+# api_modelo.py - Guarda este código en un archivo
 from flask import Flask, request, jsonify
 import joblib
+import numpy as np
 
+# Crear aplicación Flask
 app = Flask(__name__)
 
-# Cargar modelo (asumiendo que ya existe)
+# Cargar tu modelo entrenado (usar el de spam del Módulo 3)
 # modelo = joblib.load('modelo_spam.pkl')
 # vectorizer = joblib.load('vectorizer_spam.pkl')
 
+# Para este ejemplo, simularemos un modelo simple
+class ModeloSimulado:
+    def predict(self, X):
+        return ["spam" if x > 0.5 else "ham" for x in X]
+
+modelo = ModeloSimulado()
+
 @app.route('/')
-def home():
-    return "API de Detección de Spam funcionando!"
+def inicio():
+    return "API de Clasificación de Spam activa! Usa /predecir"
 
 @app.route('/predecir', methods=['POST'])
 def predecir():
-    # Recibe el mensaje del cliente
-    datos = request.get_json()
-    mensaje = datos['mensaje']
+    try:
+        # Obtener datos del request
+        datos = request.get_json()
+        texto = datos['mensaje']
+        
+        # Hacer predicción (aquí usarías tu vectorizer real)
+        # X = vectorizer.transform([texto])
+        # prediccion = modelo.predict(X)[0]
+        
+        # Simulación
+        prediccion = "spam" if len(texto) < 20 else "ham"
+        
+        # Devolver resultado
+        resultado = {
+            'mensaje_original': texto,
+            'prediccion': prediccion,
+            'confianza': 0.85
+        }
+        
+        return jsonify(resultado)
     
-    # Procesa con el modelo
-    # mensaje_vec = vectorizer.transform([mensaje])
-    # prediccion = modelo.predict(mensaje_vec)[0]
-    
-    # Simulación de respuesta
-    prediccion = 1 if 'oferta' in mensaje.lower() else 0
-    
-    # Devuelve resultado
-    resultado = {
-        'mensaje': mensaje,
-        'es_spam': bool(prediccion),
-        'confianza': 0.85
-    }
-    return jsonify(resultado)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
 
-# Para ejecutar: app.run(debug=True)
-print("Código de API listo. Ejecuta con: python api.py")
-Tema: Creando una Interfaz Gráfica simple con Tkinter
-Contenido Detallado: Tkinter es la librería GUI estándar de Python. Piensa en ella como LEGOs para interfaces: botones, cajas de texto, etiquetas que ensamblas para crear ventanas interactivas. Es perfecta para prototipos rápidos donde el usuario puede interactuar directamente con tu modelo sin conocer programación.
-Recursos en Video:
-•	Tkinter Desde Cero - MoureDev
-•	GUI para ML Models - Python Simplified
-Ejemplo del Mundo Real: Muchas herramientas internas de empresas usan Tkinter para interfaces simples: calculadoras de riesgo crediticio, analizadores de sentimientos para reseñas, clasificadores de documentos.
-Actividad Práctica:
+@app.route('/salud')
+def salud():
+    return jsonify({'estado': 'saludable', 'modelo': 'cargado'})
+
+if __name__ == '__main__':
+    print("🚀 Servidor API iniciando...")
+    print("📍 Visita http://localhost:5000")
+    app.run(debug=True, port=5000)
+
+# Para probar la API (en otro archivo o terminal):
+"""
+import requests
+
+url = "http://localhost:5000/predecir"
+datos = {"mensaje": "Gana dinero fácil ahora!"}
+
+respuesta = requests.post(url, json=datos)
+print(respuesta.json())
+"""
+```
+
+### Tema: Creando una Interfaz Gráfica simple con Tkinter
+
+**Contenido Detallado:**
+Tkinter es la librería GUI estándar de Python: simple, incluida por defecto, multiplataforma. Permite crear ventanas, botones, campos de texto y más. Conectarás tu modelo a una interfaz que cualquiera puede usar sin saber programar. Es el paso final: de código a producto que tu abuela podría usar.
+
+**Recursos en Video:**
+- [Tkinter Desde Cero - MoureDev](https://www.youtube.com/watch?v=aFiXlF8PdFg)
+- [GUI para ML con Python - NeuralNine](https://www.youtube.com/watch?v=5qOnzF7RsNA)
+
+**Ejemplo del Mundo Real:**
+Muchas herramientas médicas de diagnóstico usan interfaces simples donde el doctor sube una imagen, el modelo la analiza, y muestra el resultado en la misma ventana. Sin comandos, sin código.
+
+**Actividad Práctica:**
+```python
+# gui_clasificador.py - Interfaz gráfica para clasificador de spam
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import ttk, messagebox
+import joblib
 
-# Crear ventana principal
-ventana = tk.Tk()
-ventana.title("Detector de Spam")
-ventana.geometry("400x300")
-
-# Función que se ejecuta al presionar el botón
-def analizar_mensaje():
-    mensaje = texto_entrada.get("1.0", "end-1c")
+class ClasificadorSpamGUI:
+    def __init__(self, ventana):
+        self.ventana = ventana
+        self.ventana.title("🚫 Detector de Spam con IA")
+        self.ventana.geometry("500x400")
+        
+        # Intentar cargar modelo (o usar simulación)
+        try:
+            # self.modelo = joblib.load('modelo_spam.pkl')
+            # self.vectorizer = joblib.load('vectorizer_spam.pkl')
+            self.modelo_cargado = True
+        except:
+            self.modelo_cargado = False
+            print("⚠️ Modelo no encontrado, usando simulación")
+        
+        self.crear_widgets()
     
-    # Aquí iría la predicción real del modelo
-    es_spam = "oferta" in mensaje.lower() or "gratis" in mensaje.lower()
+    def crear_widgets(self):
+        # Título
+        titulo = tk.Label(
+            self.ventana, 
+            text="Detector de Spam con IA", 
+            font=("Arial", 18, "bold")
+        )
+        titulo.pack(pady=20)
+        
+        # Instrucciones
+        instruccion = tk.Label(
+            self.ventana,
+            text="Escribe un mensaje para analizar:",
+            font=("Arial", 12)
+        )
+        instruccion.pack()
+        
+        # Campo de texto
+        self.texto_frame = tk.Frame(self.ventana)
+        self.texto_frame.pack(pady=10)
+        
+        self.texto = tk.Text(
+            self.texto_frame, 
+            height=8, 
+            width=50,
+            font=("Arial", 11)
+        )
+        self.texto.pack(side=tk.LEFT)
+        
+        # Scrollbar
+        scrollbar = ttk.Scrollbar(self.texto_frame)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        self.texto.config(yscrollcommand=scrollbar.set)
+        scrollbar.config(command=self.texto.yview)
+        
+        # Botón analizar
+        self.boton_analizar = tk.Button(
+            self.ventana,
+            text="🔍 Analizar Mensaje",
+            command=self.analizar_mensaje,
+            bg="#4CAF50",
+            fg="white",
+            font=("Arial", 12, "bold"),
+            padx=20,
+            pady=10
+        )
+        self.boton_analizar.pack(pady=10)
+        
+        # Resultado
+        self.resultado_frame = tk.Frame(self.ventana)
+        self.resultado_frame.pack(pady=20)
+        
+        self.resultado_label = tk.Label(
+            self.resultado_frame,
+            text="",
+            font=("Arial", 14, "bold")
+        )
+        self.resultado_label.pack()
+        
+        # Botón limpiar
+        self.boton_limpiar = tk.Button(
+            self.ventana,
+            text="🗑️ Limpiar",
+            command=self.limpiar,
+            bg="#f44336",
+            fg="white",
+            font=("Arial", 10)
+        )
+        self.boton_limpiar.pack()
     
-    if es_spam:
-        resultado = "⚠️ SPAM DETECTADO"
-        color = "red"
-    else:
-        resultado = "✅ Mensaje Limpio"
-        color = "green"
+    def analizar_mensaje(self):
+        mensaje = self.texto.get("1.0", tk.END).strip()
+        
+        if not mensaje:
+            messagebox.showwarning("Advertencia", "Por favor escribe un mensaje")
+            return
+        
+        # Simular predicción (aquí usarías tu modelo real)
+        palabras_spam = ["gratis", "premio", "ganar", "oferta", "urgente", "click"]
+        es_spam = any(palabra in mensaje.lower() for palabra in palabras_spam)
+        
+        if es_spam:
+            resultado = "⚠️ SPAM DETECTADO"
+            color = "#f44336"
+            emoji = "🚫"
+        else:
+            resultado = "✅ MENSAJE LEGÍTIMO"
+            color = "#4CAF50"
+            emoji = "✉️"
+        
+        # Mostrar resultado
+        self.resultado_label.config(
+            text=f"{emoji} {resultado}",
+            fg=color
+        )
+        
+        # Animación simple
+        self.ventana.after(100, lambda: self.resultado_label.config(font=("Arial", 16, "bold")))
+        self.ventana.after(200, lambda: self.resultado_label.config(font=("Arial", 14, "bold")))
     
-    etiqueta_resultado.config(text=resultado, fg=color)
+    def limpiar(self):
+        self.texto.delete("1.0", tk.END)
+        self.resultado_label.config(text="")
 
-# Elementos de la interfaz
-tk.Label(ventana, text="Ingresa tu mensaje:", font=("Arial", 12)).pack(pady=10)
+# Ejecutar la aplicación
+if __name__ == "__main__":
+    ventana = tk.Tk()
+    app = ClasificadorSpamGUI(ventana)
+    ventana.mainloop()
+```
 
-texto_entrada = tk.Text(ventana, height=5, width=40)
-texto_entrada.pack(pady=10)
+### Tema: Proyecto Final Conceptual
 
-boton_analizar = tk.Button(
-    ventana, 
-    text="Analizar", 
-    command=analizar_mensaje,
-    bg="blue", 
-    fg="white",
-    font=("Arial", 12)
-)
-boton_analizar.pack(pady=10)
+**Contenido Detallado:**
+Diseñarás tu propia aplicación de IA en papel antes de codificar. Define: ¿Qué problema resuelve? ¿Qué datos necesita? ¿Qué modelo usarías? ¿Cómo sería la interfaz? Este ejercicio conecta todo lo aprendido y te prepara para crear proyectos reales.
 
-etiqueta_resultado = tk.Label(ventana, text="", font=("Arial", 14, "bold"))
-etiqueta_resultado.pack(pady=10)
+**Recursos en Video:**
+- [Cómo Planificar Proyectos de ML - Ken Jee](https://www.youtube.com/watch?v=jl8xbOS_dRE)
+- [De Idea a Producto ML - Cassie Kozyrkov](https://www.youtube.com/watch?v=xMIxb0dABOs)
 
-# Para ejecutar: ventana.mainloop()
-print("Interfaz lista. Añade ventana.mainloop() para ejecutar")
-Tema: Proyecto Final Conceptual
-Contenido Detallado: Es hora de diseñar tu propia aplicación de IA. No escribiremos todo el código, pero planificarás cada componente. Este ejercicio solidifica tu comprensión conectando todos los módulos anteriores.
-Recursos en Video:
-•	De Idea a Producto ML - Google Developers
-•	Arquitectura de Apps con IA - IBM
-Ejemplo del Mundo Real: Shazam comenzó como un concepto simple: grabar audio, extraer features de frecuencia, comparar con base de datos, devolver canción. El diseño conceptual fue crucial antes de escribir código.
-Actividad Práctica:
-## MI APLICACIÓN: Analizador de Currículums
+**Ejemplo del Mundo Real:**
+Antes de crear Shazam, sus fundadores diseñaron en papel: entrada (audio de 10 segundos), procesamiento (extraer huella digital acústica), modelo (matching con base de datos), salida (nombre de la canción).
+
+**Actividad Práctica:**
+Completa esta plantilla para tu proyecto:
+
+```markdown
+## Mi Aplicación de IA: [Nombre del Proyecto]
 
 ### 1. PROBLEMA A RESOLVER
-Ayudar a RH a filtrar CVs rápidamente identificando candidatos relevantes.
+- ¿Qué problema específico resuelve?
+- ¿Quién lo usaría?
+- ¿Por qué es importante?
 
-### 2. ENTRADA DEL USUARIO
-- Archivo PDF o texto del currículum
-- Descripción del puesto buscado
+### 2. DATOS NECESARIOS
+- Tipo de datos (texto, imagen, números)
+- ¿De dónde los obtendría?
+- ¿Cuántos necesitaría aproximadamente?
 
-### 3. PROCESAMIENTO (Pipeline)
-1. Extraer texto del PDF (PyPDF2)
-2. Limpiar y tokenizar texto
-3. Extraer features: años experiencia, skills, educación
-4. Vectorizar con TF-IDF
-5. Calcular similitud con descripción del puesto
+### 3. MODELO DE IA
+- Tipo de modelo (clasificación, regresión, etc.)
+- Arquitectura (red neuronal, árbol de decisión, etc.)
+- ¿Usaría transfer learning?
 
-### 4. MODELO DE IA
-- Tipo: Clasificador binario (apto/no apto) + score de relevancia
-- Entrenamiento: Dataset de CVs históricos etiquetados
-- Features principales: skills match, experiencia, keywords
+### 4. INTERFAZ DE USUARIO
+- Dibuja un boceto simple
+- ¿Qué ingresa el usuario?
+- ¿Qué ve como resultado?
+- ¿Web, móvil o escritorio?
 
-### 5. SALIDA
-- Score de compatibilidad (0-100%)
-- Top 3 razones de la decisión
-- Sugerencias de mejora para el candidato
+### 5. FLUJO DE TRABAJO
+1. Usuario ingresa: _______
+2. Preprocesamiento: _______
+3. Modelo predice: _______
+4. Usuario ve: _______
 
-### 6. INTERFAZ
-- Web: Upload de archivo + resultados visuales
-- API: Para integración con sistemas de RH existentes
+### 6. MÉTRICAS DE ÉXITO
+- ¿Cómo sabrás si funciona bien?
+- ¿Qué precisión necesitas mínimo?
 
-### 7. CONSIDERACIONES ÉTICAS
-- Evitar sesgos por género, edad, origen
-- Transparencia en criterios de evaluación
-- Opción de revisión humana
+### EJEMPLO COMPLETADO:
+**Nombre:** DetectorDeEstres
+**Problema:** Detectar niveles de estrés en texto
+**Datos:** Diarios personales etiquetados (alto/medio/bajo estrés)
+**Modelo:** BERT fine-tuneado para clasificación
+**Interfaz:** App web donde escribes cómo fue tu día
+**Salida:** Nivel de estrés + recomendaciones personalizadas
+```
 
-### 8. PRÓXIMOS PASOS
-1. Conseguir dataset de prueba (Kaggle)
-2. Crear prototipo en Jupyter
-3. Desarrollar API con Flask
-4. Construir interfaz web simple
-5. Testear con usuarios reales
-________________________________________
-Módulo 6: Especialización y Aprendizaje Continuo
-Tema: Ramas de Especialización
-Contenido Detallado: La IA es un océano; es momento de elegir tu isla favorita. Visión por Computadora: Detectar objetos, segmentar imágenes, reconocimiento facial. Usa CNN, YOLO, OpenCV. NLP (Procesamiento de Lenguaje Natural): Chatbots, traducción, análisis de sentimientos. Domina Transformers, BERT, GPT. MLOps: Llevar modelos a producción, monitoreo, CI/CD. Aprende Docker, Kubernetes, MLflow. IA Generativa: Crear imágenes, texto, música. Explora GANs, Diffusion Models, VAEs.
-Recursos en Video:
-•	Carreras en IA - DeepLearning.AI
-•	Especializaciones ML - Dot CSV
-Ejemplo del Mundo Real:
-•	Visión: Los autos de Tesla usan 8 cámaras procesadas por redes especializadas
-•	NLP: Duolingo personaliza lecciones analizando errores en texto
-•	MLOps: Netflix despliega cientos de modelos A/B testing diariamente
-•	Generativa: Midjourney crea arte, GitHub Copilot genera código
-Actividad Práctica: Investiga y completa esta tabla para encontrar tu camino:
+---
+
+## Módulo 6: Especialización y Aprendizaje Continuo
+
+### Tema: Ramas de Especialización
+
+**Contenido Detallado:**
+La IA tiene múltiples especializaciones, cada una con sus propios desafíos y recompensas. **Visión por Computadora**: Enseñar a las máquinas a "ver" (detección de objetos, segmentación, reconocimiento facial). **NLP (Procesamiento de Lenguaje Natural)**: Entender y generar texto humano (chatbots, traducción, análisis de sentimientos). **MLOps**: Llevar modelos a producción de forma confiable y escalable. **IA Generativa**: Crear contenido nuevo (imágenes con Stable Diffusion, texto con GPT, música con MusicGen).
+
+**Recursos en Video:**
+- [Carreras en IA - Andrew Ng](https://www.youtube.com/watch?v=dJq8oj-xK5Q)
+- [Especializaciones en ML - Dot CSV](https://www.youtube.com/watch?v=uOEGmTUx8jM)
+
+**Ejemplo del Mundo Real:**
+- **Visión**: Tesla Autopilot detecta peatones, señales y otros vehículos
+- **NLP**: DeepL traduce documentos manteniendo contexto y tono
+- **MLOps**: Netflix actualiza recomendaciones para 200M usuarios sin caídas
+- **Generativa**: Midjourney crea arte desde descripciones de texto
+
+**Actividad Práctica:**
+Investiga y completa esta tabla de exploración:
+
+```python
 especializaciones = {
-    'Vision_Computadora': {
-        'me_interesa': None,  # True/False
-        'proyecto_idea': '',  # Ej: "Detector de mascarillas"
-        'recurso_clave': ''   # Un curso/libro para empezar
+    "Visión por Computadora": {
+        "proyecto_inicial": "Clasificador de razas de perros",
+        "librería_clave": "OpenCV, YOLOv8",
+        "empresa_líder": "______ (investiga)",
+        "salario_promedio": "$______ (busca en tu país)"
     },
-    'NLP': {
-        'me_interesa': None,
-        'proyecto_idea': '',
-        'recurso_clave': ''
+    "NLP": {
+        "proyecto_inicial": "Analizador de sentimientos en reseñas",
+        "librería_clave": "Hugging Face Transformers",
+        "empresa_líder": "______",
+        "salario_promedio": "$______"
     },
-    'MLOps': {
-        'me_interesa': None,
-        'proyecto_idea': '',
-        'recurso_clave': ''
-    },
-    'IA_Generativa': {
-        'me_interesa': None,
-        'proyecto_idea': '',
-        'recurso_clave': ''
+    "MLOps": {
+        "proyecto_inicial": "Pipeline CI/CD para modelo",
+        "herramienta_clave": "MLflow, Kubeflow",
+        "empresa_líder": "______",
+        "salario_promedio": "$______"
     }
 }
 
-# Reflexiona: ¿Qué problemas del mundo real quieres resolver?
-Tema: Manteniéndote Relevante
-Contenido Detallado: La IA evoluciona exponencialmente. Para no quedarte atrás: Kaggle es tu gimnasio de datos, compite y aprende de los mejores. GitHub es tu portafolio viviente, muestra proyectos reales. Papers son la fuente de innovación; empieza con Papers With Code para implementaciones. Comunidades aceleran tu aprendizaje: únete a grupos locales de IA, Discord servers, subreddits. Práctica diaria beats talento esporádico.
-Recursos en Video:
-•	Cómo usar Kaggle efectivamente - Ken Jee
-•	Crear Portfolio de ML - Nicholas Renotte
-Ejemplo del Mundo Real: Andrej Karpathy, ex-director de IA en Tesla, comparte sus implementaciones en GitHub, lee papers diariamente, y enseña en YouTube. Su transparencia y constancia lo convirtieron en referente mundial.
-Actividad Práctica: Crea tu plan de crecimiento personal:
-## Mi Plan de Crecimiento en IA - Próximos 3 Meses
+# Elige una especialización que te interese y busca:
+# 1. Un curso específico en YouTube
+# 2. Un proyecto en GitHub para estudiar
+# 3. Una comunidad o foro donde aprender más
+```
 
-### Semana 1-4: Fundamentos
-- [ ] Completar 1 competencia de Kaggle para principiantes
-- [ ] Subir mi primer modelo a GitHub con README detallado
-- [ ] Leer 1 paper simple (buscar en arxiv-sanity.com)
+### Tema: Manteniéndote Relevante
 
-### Semana 5-8: Construir
-- [ ] Desarrollar proyecto personal (idea: ___________)
-- [ ] Compartir progreso en LinkedIn/Twitter semanalmente
-- [ ] Participar en 1 hackathon virtual
+**Contenido Detallado:**
+La IA evoluciona exponencialmente. Lo que aprendes hoy será básico en 2 años. **Kaggle**: Plataforma de competencias donde practicas con datos reales y aprendes de los mejores. **GitHub Portfolio**: Tu CV técnico; muestra proyectos, no solo certificados. **Papers**: ArXiv.org tiene los últimos avances; empieza con papers con código en paperswithcode.com. **Comunidades**: Reddit (r/MachineLearning), Discord de Hugging Face, meetups locales. La clave es aprendizaje continuo y práctica constante.
 
-### Semana 9-12: Profundizar
-- [ ] Elegir especialización y tomar curso avanzado
-- [ ] Contribuir a un proyecto open-source de IA
-- [ ] Crear tutorial/blog sobre algo que aprendí
+**Recursos en Video:**
+- [Cómo usar Kaggle - Ken Jee](https://www.youtube.com/watch?v=UxZcg7p1aAM)
+- [Leer Papers de ML - Yannic Kilcher](https://www.youtube.com/watch?v=x3psF0qJwHM)
 
-### Hábitos Diarios (20 mins mínimo):
-- Lunes: Resolver un desafío en Kaggle Learn
-- Martes: Leer paper o artículo técnico
-- Miércoles: Codificar feature para proyecto
-- Jueves: Ver video tutorial avanzado
-- Viernes: Revisar código de otros en GitHub
-- Fin de semana: Proyecto personal
+**Ejemplo del Mundo Real:**
+Andrej Karpathy, ex-director de IA en Tesla, mantiene su relevancia compartiendo implementaciones desde cero en YouTube, leyendo papers diariamente y construyendo proyectos públicos como miniGPT.
 
-### Recursos Clave:
-1. fast.ai - Cursos prácticos gratuitos
-2. Papers With Code - Papers con implementación
-3. r/MachineLearning - Comunidad activa
-4. Two Minute Papers - Videos de papers resumidos
-5. MLOps Community - Si eliges esa rama
-________________________________________
-Conclusión y Principios Transversales
-Tema: Ética en IA (Sesgos, Privacidad y Explicabilidad)
-Contenido Detallado: Con gran poder viene gran responsabilidad. Sesgos: Los modelos aprenden de datos históricos que pueden perpetuar discriminación. Audita tus datasets, busca representación equitativa. Privacidad: Los datos son sagrados. Anonimiza, encripta, cumple con GDPR. Nunca entrenes con datos personales sin consentimiento. Explicabilidad: Los modelos no deben ser cajas negras. Usa LIME, SHAP para explicar decisiones. Si tu modelo rechaza un préstamo, el usuario merece saber por qué. La IA debe amplificar lo mejor de la humanidad, no lo peor.
-Recursos en Video:
-•	Sesgo en IA - MIT
-•	Ética en Machine Learning - Google
-Ejemplo del Mundo Real: Amazon descartó un sistema de reclutamiento por IA que discriminaba contra mujeres.
+**Actividad Práctica:**
+Plan de acción para los próximos 30 días:
+```markdown
+## Mi Plan de Crecimiento en IA - Próximos 30 Días
+
+### Semana 1: Fundación
+- [ ] Completar el proyecto de spam del Módulo 3
+- [ ] Subir código a GitHub con README detallado
+- [ ] Crear cuenta en Kaggle y explorar 3 competencias
+
+### Semana 2: Práctica
+- [ ] Completar el proyecto MNIST del Módulo 4
+- [ ] Participar en competencia Kaggle para principiantes
+- [ ] Ver 1 video diario de la especialización elegida
+
+### Semana 3: Construcción
+- [ ] Implementar API Flask para uno de tus modelos
+- [ ] Crear GUI con Tkinter
+- [ ] Escribir un blog post sobre lo aprendido
+
+### Semana 4: Expansión
+- [ ] Leer tu primer paper (empieza con "Attention is All You Need")
+- [ ] Conectar con 5 personas en LinkedIn que trabajen en IA
+- [ ] Planificar tu siguiente proyecto más ambicioso
+
+### Recursos diarios (15-30 min):
+- Lunes: Video técnico en YouTube
+- Martes: Práctica en Kaggle
+- Miércoles: Lectura de blog/paper
+- Jueves: Codificar proyecto personal
+- Viernes: Documentar y compartir progreso
+- Fin de semana: Proyecto largo o curso online
+```
+
+---
+
+## Conclusión y Principios Transversales
+
+### Tema: Ética en IA (Sesgos, Privacidad y Explicabilidad)
+
+**Contenido Detallado:**
+Con gran poder viene gran responsabilidad. **Sesgos**: Los modelos aprenden de datos históricos que pueden contener prejuicios. Un modelo de contratación entrenado con CVs del pasado podría discriminar si históricamente se contrataban más hombres. **Privacidad**: Los modelos pueden memorizar información sensible. Técnicas como privacidad diferencial protegen datos individuales. **Explicabilidad**: Los modelos "caja negra" toman decisiones que no podemos entender. LIME y SHAP ayudan a explicar predicciones. La IA debe ser justa, transparente y beneficiar a todos.
+
+**Recursos en Video:**
+- [Ética en IA - MIT](https://www.youtube.com/watch?v=i5pVMKYymQ0)
+- [Sesgos en ML - Google](https://www.youtube.com/watch?v=gPhaecdb2qU)
+
+**Ejemplo del Mundo Real:**
+Amazon descartó un sistema de contratación con IA porque penalizaba CVs que incluían la palabra "women's" (como "women's chess club captain"). El modelo había aprendido sesgos de 10 años de datos de contratación predominantemente masculina.
+
+**Actividad Práctica:**
+Reflexión ética sobre tu proyecto:
+```python
+# Checklist ético para tu modelo
+preguntas_eticas = {
+    "Sesgo": [
+        "¿Mi dataset representa equitativamente a todos los grupos?",
+        "¿He probado el modelo con diferentes demografías?",
+        "¿Podría mi modelo perpetuar estereotipos?"
+    ],
+    "Privacidad": [
+        "¿Estoy usando datos personales con consentimiento?",
+        "¿Podría mi modelo revelar información privada?",
+        "¿He anonimizado datos sensibles?"
+    ],
+    "Transparencia": [
+        "¿Puedo explicar cómo mi modelo toma decisiones?",
+        "¿Los usuarios entienden las limitaciones del modelo?",
+        "¿He documentado posibles fallos?"
+    ],
+    "Impacto": [
+        "¿Quién se beneficia de mi modelo?",
+        "¿Podría alguien ser perjudicado?",
+        "¿Cómo puedo minimizar consecuencias negativas?"
+    ]
+}
+
+# Para cada pregunta, escribe tu respuesta y plan de acción
+for categoria, preguntas in preguntas_eticas.items():
+    print(f"\n{categoria.upper()}:")
+    for pregunta in preguntas:
+        print(f"  • {pregunta}")
+        # Tu respuesta: _______
+```
+
+## Párrafo Final
+
+🎉 **¡Felicitaciones, héroe de la IA!** 
+
+Has completado tu odisea desde los conceptos más básicos hasta la implementación de modelos reales. Has aprendido a pensar como un científico de datos, construir como un ingeniero de ML, y reflexionar como un profesional ético. Pero esto no es el final, es apenas el comienzo de tu aventura.
+
+La IA no es solo tecnología; es una herramienta para amplificar la creatividad humana y resolver problemas que parecían imposibles. Cada línea de código que escribas, cada modelo que entrenes, cada aplicación que construyas, tiene el potencial de mejorar vidas.
+
+Recuerda: los expertos de hoy también fueron principiantes ayer. La diferencia está en que nunca dejaron de aprender, experimentar y construir. Comete errores, celébralos como oportunidades de aprendizaje. Comparte tu conocimiento, la comunidad de IA crece cuando todos contribuimos.
+
+Tu siguiente paso está claro: elige un problema que te apasione y constrúyele una solución. No tiene que ser perfecto, solo tiene que existir. El mundo necesita más constructores, más soñadores pragmáticos que conviertan la ciencia ficción en realidad cotidiana.
+
+**El futuro de la IA se está escribiendo ahora mismo, y tú tienes el teclado en tus manos. ¿Qué vas a crear?**
+
+---
+
+*"El mejor momento para plantar un árbol fue hace 20 años. El segundo mejor momento es ahora."* - Proverbio chino
+
+Aplica esto a tu viaje en IA: empieza hoy, sé consistente, y en un año te sorprenderás de lo lejos que has llegado.
+
+**¡Adelante, constructor del futuro! El mundo está esperando tu próxima creación. 🚀🤖✨**
